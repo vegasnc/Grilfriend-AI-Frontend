@@ -16,13 +16,10 @@ interface PropsType {
     toggle: () => void;
 }
 
-const UID = Math.random().toString(36).substring(2, 9);
-
 export default function ChatBox(props: PropsType) {
     const [query, setQuery] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
     const [apiError, setError] = useState<string | null>(null);
-    const [apiArr, setAPIArr] = useState<Array<{api: string; response: string}>>([]);
     const [messageState, setMessageState] = useState<{
         messages: Message[];
         pending?: string;
@@ -87,61 +84,6 @@ export default function ChatBox(props: PropsType) {
         setOpenPopup(false);
     };
 
-    async function getAPIAnswer(api: string, response: string) {
-        const question = response.trim();
-
-        setMessageState((state) => ({
-            ...state,
-            messages: [
-                ...state.messages,
-                {
-                    type: 'userMessage',
-                    message: question,
-                },
-            ],
-        }));
-
-        setLoading(true);
-
-        try {
-            const response = await backendAPI.post( "/api/get_api_answer", {
-                question: question,
-                api: api
-            });
-            const data = await response.data;
-            console.log('data', data);
-
-            if (data.error) {
-                setError(data.error);
-            } else {
-                console.log('data', data);
-                setMessageState((state) => ({
-                    ...state,
-                    messages: [
-                        ...state.messages,
-                        {
-                            type: 'apiMessage',
-                            message: data.answer,
-                        },
-                    ],
-                    history: [...state.history, [question, data.answer]],
-                }));
-
-                props.chatHistory(messageState);
-
-            }
-
-            setLoading(false);
-
-            //scroll to bottom
-            messageListRef.current?.scrollTo({ top: messageListRef.current.scrollHeight, behavior: 'smooth' });
-        } catch (error) {
-            setLoading(false);
-            setError('An error occurred while fetching the data. Please try again.');
-            console.log('error', error);
-        }
-    }
-
     //handle form submission
     async function handleSubmit(e: any) {
         e.preventDefault();
@@ -170,7 +112,7 @@ export default function ChatBox(props: PropsType) {
         setQuery('');
 
         try {
-            const response = await backendAPI.post( "/api/get_answer", {
+            const response = await backendAPI.post( "/get_answer", {
                 question: question,
             });
             const data = await response.data;
@@ -184,16 +126,13 @@ export default function ChatBox(props: PropsType) {
                         ...state.messages,
                         {
                             type: 'apiMessage',
-                            message: data.answer.answer,
+                            message: data.answer,
                         },
                     ],
-                    history: [...state.history, [question, data.answer.answer]],
+                    history: [...state.history, [question, data.answer]],
                 }));
 
                 props.chatHistory(messageState);
-
-                setAPIArr(data.answer.api);
-
             }
             console.log('messageState', messageState);
 
@@ -312,18 +251,6 @@ export default function ChatBox(props: PropsType) {
                                 </>
                             );
                         })}
-
-                        {
-                            !loading && apiArr.map((api_item, index) => {
-                                return (
-                                    <>
-                                        <div className={styles.apibutton} onClick={() => getAPIAnswer(api_item.api, api_item.response)}>
-                                            {api_item.response}
-                                        </div>
-                                    </>
-                                )
-                            })
-                        }
                     </div>
 
                     {loading ? (
