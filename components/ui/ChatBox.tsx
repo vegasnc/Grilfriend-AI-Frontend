@@ -43,8 +43,6 @@ export default function ChatBox(props: PropsType) {
         resetTranscript,
         browserSupportsSpeechRecognition
     } = useSpeechRecognition();
-    const startListening = () => SpeechRecognition.startListening({ continuous: true });
-
 
     const messageListRef = useRef<HTMLDivElement>(null);
     const textAreaRef = useRef<HTMLTextAreaElement>(null);
@@ -153,14 +151,12 @@ export default function ChatBox(props: PropsType) {
         }
     }
 
-    const handleMic = (e: any) => {
-        e.preventDefault();
-        
-        // if( listening ) {
-        //     SpeechRecognition.stopListening();
-        // } else {
-            startListening();
-        // }
+    const startListening = () => SpeechRecognition.startListening({ continuous: true });
+
+    const stopListening = () => {
+        setQuery(transcript);
+        resetTranscript();
+        SpeechRecognition.stopListening();
     }
 
     //prevent empty submissions
@@ -195,12 +191,11 @@ export default function ChatBox(props: PropsType) {
                     <div className={styles.chatheader}>
                         <button 
                             className={styles.btnrecording} 
-                            disabled={loading} 
-                            onClick={handleMic}
+                            disabled={loading}
                             onTouchStart={startListening}
                             onMouseDown={startListening}
-                            onTouchEnd={SpeechRecognition.stopListening}
-                            onMouseUp={SpeechRecognition.stopListening} >
+                            onTouchEnd={stopListening}
+                            onMouseUp={stopListening} >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 width="30"
