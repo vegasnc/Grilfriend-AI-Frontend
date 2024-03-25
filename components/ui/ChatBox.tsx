@@ -285,7 +285,7 @@ export default function ChatBox(props: PropsType) {
                                             id="userInput"
                                             name="userInput"
                                             placeholder={loading ? 'Waiting for response...' : 'Ask me anything...'}
-                                            value={transcript ? transcript + query : query}
+                                            value={transcript ? transcript : query}
                                             // value={query}
                                             onChange={(e) => setQuery(e.target.value)}
                                         />
