@@ -6,7 +6,7 @@
   "author": "Mkneeshaw",
   "type": "module",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -H 192.168.107.71",
     "build": "next build",
     "start": "next start",
     "type-check": "tsc --noEmit",
@@ -39,6 +39,7 @@
     "react-markdown": "^8.0.5",
     "react-speech-recognition": "^3.10.0",
     "reactjs-popup": "^2.0.5",
+    "regenerator-runtime": "^0.14.1",
     "tailwind-merge": "^1.10.0",
     "tsx": "^3.12.6"
   },

@@ -4,7 +4,8 @@ import { Message } from '@/types/chat';
 import Image from 'next/image';
 import ReactMarkdown from 'react-markdown';
 import axios from 'axios';
-// import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+import 'regenerator-runtime/runtime';
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
@@ -36,19 +37,20 @@ export default function ChatBox(props: PropsType) {
     const [isOpenPopup, setOpenPopup] = useState(false);
     const { messages, history } = messageState;
 
-    // const {
-    //     transcript,
-    //     listening,
-    //     resetTranscript,
-    //     browserSupportsSpeechRecognition
-    // } = useSpeechRecognition();
-    // const startListening = () => SpeechRecognition.startListening({ continuous: true });
+    const {
+        transcript,
+        listening,
+        resetTranscript,
+        browserSupportsSpeechRecognition
+    } = useSpeechRecognition();
+    const startListening = () => SpeechRecognition.startListening({ continuous: true });
+
 
     const messageListRef = useRef<HTMLDivElement>(null);
     const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
     const backendAPI = axios.create({
-        baseURL : "http://18.196.177.6"
+        baseURL : "https://chatbot.sdmansiontest.com"
     });
     backendAPI.defaults.headers.common['Content-Type'] = 'application/json';
     backendAPI.defaults.headers.common['User-Agent'] = 'XY';
@@ -60,6 +62,10 @@ export default function ChatBox(props: PropsType) {
     useEffect(() => {
         messageListRef.current?.scrollTo({ top: messageListRef.current.scrollHeight, behavior: 'smooth' });
     }, [messageState.messages]);
+
+    useEffect(() => {
+        console.log(">>>>>>>>>>>>>>>>>>>>>>>", transcript);
+    }, [transcript]);
 
     // chat box open button action
     const triggerPopup = () => {
@@ -149,10 +155,11 @@ export default function ChatBox(props: PropsType) {
 
     const handleMic = (e: any) => {
         e.preventDefault();
+        
         // if( listening ) {
         //     SpeechRecognition.stopListening();
         // } else {
-        //     startListening();
+            startListening();
         // }
     }
 
@@ -186,7 +193,14 @@ export default function ChatBox(props: PropsType) {
             >
                 <div className="mx-auto flex flex-col gap-4">
                     <div className={styles.chatheader}>
-                        <button className={styles.btnrecording} disabled={loading} onClick={handleMic} >
+                        <button 
+                            className={styles.btnrecording} 
+                            disabled={loading} 
+                            onClick={handleMic}
+                            onTouchStart={startListening}
+                            onMouseDown={startListening}
+                            onTouchEnd={SpeechRecognition.stopListening}
+                            onMouseUp={SpeechRecognition.stopListening} >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 width="30"
@@ -276,8 +290,8 @@ export default function ChatBox(props: PropsType) {
                                             id="userInput"
                                             name="userInput"
                                             placeholder={loading ? 'Waiting for response...' : 'Ask me anything...'}
-                                            // value={resetTranscript ? resetTranscript + query : query}
-                                            value={query}
+                                            value={transcript ? transcript + query : query}
+                                            // value={query}
                                             onChange={(e) => setQuery(e.target.value)}
                                         />
                                     </div>
