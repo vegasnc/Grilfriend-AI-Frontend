@@ -34,6 +34,7 @@ export default function ChatBox(props: PropsType) {
         ],
         history: [],
     });
+    const [ recording, setRecording ] = useState(false);
     const [isOpenPopup, setOpenPopup] = useState(false);
     const { messages, history } = messageState;
 
@@ -152,14 +153,16 @@ export default function ChatBox(props: PropsType) {
     }
 
     const startListening = () => {
-        console.log(">>>> Starting Listening")
+        console.log(">>>> Starting Listening", recording)
+        setRecording(true);
         setQuery("");
         resetTranscript();
         SpeechRecognition.startListening();
     };
 
     const stopListening = () => {
-        console.log(">>>> Stopped Listening")
+        console.log(">>>> Stopped Listening", recording)
+        setRecording(false);
         setQuery(transcript);
         resetTranscript();
         SpeechRecognition.stopListening();
@@ -291,7 +294,7 @@ export default function ChatBox(props: PropsType) {
                                             id="userInput"
                                             name="userInput"
                                             placeholder={loading ? 'Waiting for response...' : 'Ask me anything...'}
-                                            value={listening ? transcript : query}
+                                            value={recording ? transcript : query}
                                             // value={query}
                                             onChange={(e) => setQuery(e.target.value)}
                                         />
