@@ -151,9 +151,15 @@ export default function ChatBox(props: PropsType) {
         }
     }
 
-    const startListening = () => SpeechRecognition.startListening({ continuous: true });
+    const startListening = () => {
+        console.log(">>>> Starting Listening")
+        setQuery("");
+        resetTranscript();
+        SpeechRecognition.startListening();
+    };
 
     const stopListening = () => {
+        console.log(">>>> Stopped Listening")
         setQuery(transcript);
         resetTranscript();
         SpeechRecognition.stopListening();
