@@ -24,3 +24,9 @@
   background: #797979;
   border-radius: 4px;
 }
+
+audio::-webkit-media-controls-panel {
+  background: white;
+  padding: 0px;
+  margin: 0px;
+}

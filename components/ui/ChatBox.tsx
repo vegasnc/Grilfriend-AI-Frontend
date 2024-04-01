@@ -30,12 +30,12 @@ export default function ChatBox(props: PropsType) {
             {
                 message: 'Hello, How are you doing today?',
                 type: 'apiMessage',
-            },
+            }
         ],
         history: [],
     });
     const [ recording, setRecording ] = useState(false);
-    const [isOpenPopup, setOpenPopup] = useState(false);
+    const [ audioSrcURL, setAudioSrcURL ] = useState("");
     const { messages, history } = messageState;
 
     const {
@@ -61,33 +61,6 @@ export default function ChatBox(props: PropsType) {
     useEffect(() => {
         messageListRef.current?.scrollTo({ top: messageListRef.current.scrollHeight, behavior: 'smooth' });
     }, [messageState.messages]);
-
-    useEffect(() => {
-        console.log(">>>>>>>>>>>>>>>>>>>>>>>", transcript);
-    }, [transcript]);
-
-    // chat box open button action
-    const triggerPopup = () => {
-        return (
-            <button className={styles.btnchatbox}>
-                {isOpenPopup ? (
-                    <Close height="35" width="35" className={styles.btnchatboxicon} />
-                ) : (
-                    <CommentSolid height="35" width="35" className={styles.btnchatboxicon} />
-                )}
-            </button>
-        );
-    };
-
-    // Open popup
-    const openedPopup = () => {
-        setOpenPopup(true);
-    };
-
-    // Close popup
-    const closedPopup = () => {
-        setOpenPopup(false);
-    };
 
     //handle form submission
     async function handleSubmit(e: any) {
@@ -138,6 +111,9 @@ export default function ChatBox(props: PropsType) {
                 }));
 
                 props.chatHistory(messageState);
+
+                fetchAndUpdateAudioData(data.answer);
+
             }
             console.log('messageState', messageState);
 
@@ -152,8 +128,51 @@ export default function ChatBox(props: PropsType) {
         }
     }
 
+    // Function to convert text to audio using ElevenLabs API
+    const convertTextToAudio = async (textToConvert: string) => {
+        // Set the API key for ElevenLabs API
+        const apiKey = process.env.ELEVEN_LABS_API_KEY;
+    
+        // ID of voice to be used for speech
+        const voiceId = '21m00Tcm4TlvDq8ikWAM';
+    
+        // API request options
+        const apiRequestOptions = {
+            method: 'POST',
+            url: `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
+            headers: {
+                accept: 'audio/mpeg',
+                'content-type': 'application/json',
+                'xi-api-key': apiKey,
+            },
+            data: {
+                text: textToConvert,
+            },
+            // responseType: 'arraybuffer', // To receive binary data in response
+        };
+    
+        // Sending the API request and waiting for response
+        const apiResponse = await axios.request(apiRequestOptions);
+    
+        // Return the binary audio data received from API
+        return apiResponse.data;
+    };
+
+    // Asynchronous function to fetch audio data and update state variable
+    const fetchAndUpdateAudioData = async (apiAnswer: string) => {
+        const audioData = await convertTextToAudio(apiAnswer);
+
+        // Create a new Blob object from the fetched audio data with matching MIME type
+        const audioBlob = new Blob([audioData], { type: 'audio/mpeg' });
+
+        // Create a URL for the audio blob
+        const blobUrl = URL.createObjectURL(audioBlob);
+
+        // Update the sourceUrl state variable with the generated URL for the audio blob
+        setAudioSrcURL(blobUrl);
+    };
+
     const startListening = () => {
-        console.log(">>>> Starting Listening", recording)
         setRecording(true);
         setQuery("");
         resetTranscript();
@@ -161,7 +180,6 @@ export default function ChatBox(props: PropsType) {
     };
 
     const stopListening = () => {
-        console.log(">>>> Stopped Listening", recording)
         setRecording(false);
         setQuery(transcript);
         resetTranscript();
@@ -180,12 +198,10 @@ export default function ChatBox(props: PropsType) {
     return (
         <div
             style={{
-                position: 'fixed',
-                bottom: '50px',
-                right: '50px',
+                height: '100vh'
             }}
         >
-            <Popup
+            {/* <Popup
                 trigger={triggerPopup}
                 position="left bottom"
                 closeOnDocumentClick={false}
@@ -195,37 +211,16 @@ export default function ChatBox(props: PropsType) {
                 contentStyle={{ maxWidth: '300px', width: '70vw', padding: '0px' }}
                 onOpen={openedPopup}
                 onClose={closedPopup}
-            >
-                <div className="mx-auto flex flex-col gap-4">
+            > */}
+                <div className="flex flex-col gap-4">
                     <div className={styles.chatheader}>
-                        <button 
-                            className={styles.btnrecording} 
-                            disabled={loading}
-                            onTouchStart={startListening}
-                            onMouseDown={startListening}
-                            onTouchEnd={stopListening}
-                            onMouseUp={stopListening} >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="30"
-                                height="30"
-                                viewBox="0 0 30 30"
-                                fill="none"
-                            >
-                                <path
-                                    d="M7.60304 14.4388L13.9405 14.43M11.6869 5.56489L21.6924 10.5677C26.1826 12.8127 26.1737 16.4809 21.6924 18.7348L11.6869 23.7375C4.96053 27.1051 2.20281 24.3474 5.57041 17.6211L7.05533 14.6512L5.57041 11.6814C2.20281 4.95501 4.95169 2.20614 11.6869 5.56489Z"
-                                    stroke="white"
-                                    strokeWidth="2.10714"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                />
-                            </svg>
-                        </button>
+                        <span>AI GF Chatbot</span>
                     </div>
                     <div ref={messageListRef} className={styles.messagelist}>
                         {messages.map((message, index) => {
                             let icon;
                             let className;
+                            let audio;
                             if (message.type === 'apiMessage') {
                                 icon = (
                                     <Image
@@ -239,18 +234,26 @@ export default function ChatBox(props: PropsType) {
                                     />
                                 );
                                 className = styles.apimessage;
+                                audio = (
+                                    <div className={styles.audiobox}>
+                                        <audio autoPlay controls>
+                                            <source src={audioSrcURL} type='audio/mpeg'/>
+                                        </audio>
+                                    </div>
+                                )
                             } else {
                                 icon = (
                                     <Image
                                         key={index}
                                         src="/usericon.png"
                                         alt="Me"
-                                        width="20"
+                                        width="28"
                                         height="20"
                                         className={styles.usericon}
                                         priority
                                     />
                                 );
+                                audio = (<div></div>)
                                 // The latest message sent by the user will be animated while waiting for a response
                                 className =
                                     loading && index === messages.length - 1
@@ -261,11 +264,14 @@ export default function ChatBox(props: PropsType) {
                             return (
                                 <>
                                     <div key={`chatMessage-${index}`} className={className}>
-                                        {icon}
-                                        <div className={styles.markdownanswer}>
-                                            <ReactMarkdown linkTarget="_blank">{message.message}</ReactMarkdown>
+                                        <div className={className == styles.apimessage ? styles.apimessagecontent : styles.usermessagecontent}>
+                                            {icon}
+                                            <div className={styles.markdownanswer}>
+                                                <ReactMarkdown linkTarget="_blank">{message.message}</ReactMarkdown>
+                                            </div>
                                         </div>
                                     </div>
+                                    {audio}
                                 </>
                             );
                         })}
@@ -298,6 +304,21 @@ export default function ChatBox(props: PropsType) {
                                             // value={query}
                                             onChange={(e) => setQuery(e.target.value)}
                                         />
+                                        <div 
+                                            className={styles.btnmic}
+                                            onTouchStart={startListening}
+                                            onMouseDown={startListening}
+                                            onTouchEnd={stopListening}
+                                            onMouseUp={stopListening} >
+                                            <Image
+                                                key="mic"
+                                                src="/mic.svg"
+                                                alt="Me"
+                                                width="28"
+                                                height="28"
+                                                priority
+                                            />
+                                        </div>
                                     </div>
                                     <button className={styles.btnsend} type="submit" disabled={loading}>
                                         <svg
@@ -321,7 +342,7 @@ export default function ChatBox(props: PropsType) {
                         </div>
                     )}
                 </div>
-            </Popup>
+            {/* </Popup> */}
         </div>
     );
 }
