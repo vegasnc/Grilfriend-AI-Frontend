@@ -7,10 +7,7 @@ import axios from 'axios';
 import 'regenerator-runtime/runtime';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 
-import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
-
-import { Close, CommentSolid } from '@/utils/icons';
 
 interface PropsType {
     chatHistory: Dispatch<SetStateAction<{ history: [string, string][] }>>;
@@ -30,6 +27,7 @@ export default function ChatBox(props: PropsType) {
             {
                 message: 'Hello, How are you doing today?',
                 type: 'apiMessage',
+                audio: ""
             }
         ],
         history: [],
@@ -82,6 +80,7 @@ export default function ChatBox(props: PropsType) {
                 {
                     type: 'userMessage',
                     message: question,
+                    audio: ""
                 },
             ],
         }));
@@ -98,24 +97,26 @@ export default function ChatBox(props: PropsType) {
             if (data.error) {
                 setError(data.error);
             } else {
-                setMessageState((state) => ({
-                    ...state,
-                    messages: [
-                        ...state.messages,
-                        {
-                            type: 'apiMessage',
-                            message: data.answer,
-                        },
-                    ],
-                    history: [...state.history, [question, data.answer]],
-                }));
+                fetchAndUpdateAudioData(data.answer).then((audioURL) => {
+                    setMessageState((state) => ({
+                        ...state,
+                        messages: [
+                            ...state.messages,
+                            {
+                                type: 'apiMessage',
+                                message: data.answer,
+                                audio: audioURL
+                            },
+                        ],
+                        history: [...state.history, [question, data.answer]],
+                    }));
 
-                props.chatHistory(messageState);
+                    props.chatHistory(messageState);
+                });
 
-                fetchAndUpdateAudioData(data.answer);
+
 
             }
-            console.log('messageState', messageState);
 
             setLoading(false);
 
@@ -148,7 +149,7 @@ export default function ChatBox(props: PropsType) {
             data: {
                 text: textToConvert,
             },
-            // responseType: 'arraybuffer', // To receive binary data in response
+            responseType: 'arraybuffer', // To receive binary data in response
         };
     
         // Sending the API request and waiting for response
@@ -159,8 +160,8 @@ export default function ChatBox(props: PropsType) {
     };
 
     // Asynchronous function to fetch audio data and update state variable
-    const fetchAndUpdateAudioData = async (apiAnswer: string) => {
-        const audioData = await convertTextToAudio(apiAnswer);
+    const fetchAndUpdateAudioData = async (answer: string) => {
+        const audioData = await convertTextToAudio(answer);
 
         // Create a new Blob object from the fetched audio data with matching MIME type
         const audioBlob = new Blob([audioData], { type: 'audio/mpeg' });
@@ -168,8 +169,7 @@ export default function ChatBox(props: PropsType) {
         // Create a URL for the audio blob
         const blobUrl = URL.createObjectURL(audioBlob);
 
-        // Update the sourceUrl state variable with the generated URL for the audio blob
-        setAudioSrcURL(blobUrl);
+        return blobUrl;
     };
 
     const startListening = () => {
@@ -237,7 +237,7 @@ export default function ChatBox(props: PropsType) {
                                 audio = (
                                     <div className={styles.audiobox}>
                                         <audio autoPlay controls>
-                                            <source src={audioSrcURL} type='audio/mpeg'/>
+                                            <source src={message.audio} type='audio/mpeg'/>
                                         </audio>
                                     </div>
                                 )
