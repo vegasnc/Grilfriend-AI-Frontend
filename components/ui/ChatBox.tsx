@@ -3,7 +3,7 @@ import styles from '@/styles/Home.module.css';
 import { Message } from '@/types/chat';
 import Image from 'next/image';
 import ReactMarkdown from 'react-markdown';
-import axios from 'axios';
+import axios, {AxiosRequestConfig} from 'axios';
 import 'regenerator-runtime/runtime';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 
@@ -96,6 +96,7 @@ export default function ChatBox(props: PropsType) {
 
             if (data.error) {
                 setError(data.error);
+                setLoading(false);
             } else {
                 fetchAndUpdateAudioData(data.answer).then((audioURL) => {
                     setMessageState((state) => ({
@@ -112,14 +113,11 @@ export default function ChatBox(props: PropsType) {
                     }));
 
                     props.chatHistory(messageState);
+                    setLoading(false);
+                }).catch (error => {
+                    setLoading(false);
                 });
-
-
-
             }
-
-            setLoading(false);
-
             //scroll to bottom
             messageListRef.current?.scrollTo({ top: messageListRef.current.scrollHeight, behavior: 'smooth' });
         } catch (error) {
@@ -132,19 +130,22 @@ export default function ChatBox(props: PropsType) {
     // Function to convert text to audio using ElevenLabs API
     const convertTextToAudio = async (textToConvert: string) => {
         // Set the API key for ElevenLabs API
-        const apiKey = process.env.ELEVEN_LABS_API_KEY;
+        // const apiKey = process.env.ELEVEN_LABS_API_KEY;
+        const apiKey = "af51400a2e44b449619f86304d951636";
+
+        console.log("API Key >>", apiKey);
     
         // ID of voice to be used for speech
         const voiceId = '21m00Tcm4TlvDq8ikWAM';
     
         // API request options
-        const apiRequestOptions = {
+        const apiRequestOptions : AxiosRequestConfig = {
             method: 'POST',
             url: `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
             headers: {
                 accept: 'audio/mpeg',
                 'content-type': 'application/json',
-                'xi-api-key': apiKey,
+                'xi-api-key': apiKey
             },
             data: {
                 text: textToConvert,

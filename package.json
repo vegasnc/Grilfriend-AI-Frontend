@@ -6,7 +6,7 @@
   "author": "Mkneeshaw",
   "type": "module",
   "scripts": {
-    "dev": "next dev -H 192.168.107.71",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "type-check": "tsc --noEmit",

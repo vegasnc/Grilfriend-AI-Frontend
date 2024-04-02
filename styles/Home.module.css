@@ -109,7 +109,7 @@
 }
 
 .usermessagewaiting {
-  padding: 0.8rem;
+  /* padding: 0.8rem; */
   color: #ffffff;
   border-radius: 19px 19px 0px 19px;
   background: linear-gradient(to left, #17c3ce, #1ce6f5, #14c4d0);
