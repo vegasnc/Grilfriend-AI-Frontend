@@ -25,7 +25,7 @@ export default function ChatBox(props: PropsType) {
     }>({
         messages: [
             {
-                message: 'Hello, How are you doing today?',
+                message: '¿Hola, cómo estás hoy?',
                 type: 'apiMessage',
                 audio: ""
             }
