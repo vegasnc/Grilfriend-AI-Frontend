@@ -135,7 +135,7 @@ export default function ChatBox(props: PropsType) {
     const convertTextToAudio = async (textToConvert: string) => {
         // Set the API key for ElevenLabs API
         // const apiKey = process.env.ELEVEN_LABS_API_KEY;
-        const apiKey = "Af51400a2e44b449619f86304d951636";
+        const apiKey = "1ed82bb7c65bc044d351c343ebe4f74e";
 
         console.log("API Key >>", apiKey);
     
