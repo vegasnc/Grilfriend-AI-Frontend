@@ -140,7 +140,8 @@ export default function ChatBox(props: PropsType) {
         console.log("API Key >>", apiKey);
     
         // ID of voice to be used for speech
-        const voiceId = '21m00Tcm4TlvDq8ikWAM';
+        // const voiceId = '21m00Tcm4TlvDq8ikWAM'; // Rachel
+        const voiceId = 'zrHiDhphv9ZnVXBqCLjz'; // Mimi
     
         // API request options
         const apiRequestOptions : AxiosRequestConfig = {
@@ -153,6 +154,12 @@ export default function ChatBox(props: PropsType) {
             },
             data: {
                 text: textToConvert,
+                voice_settings: {
+                    "similarity_boost": 90,
+                    "stability": 35,
+                    "style": 25,
+                    "use_speaker_boost": true
+                }
             },
             responseType: 'arraybuffer', // To receive binary data in response
         };
