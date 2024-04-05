@@ -155,9 +155,9 @@ export default function ChatBox(props: PropsType) {
             data: {
                 text: textToConvert,
                 voice_settings: {
-                    "similarity_boost": 90,
-                    "stability": 35,
-                    "style": 25,
+                    "similarity_boost": 0.9,
+                    "stability": 0.35,
+                    "style": 0.25,
                     "use_speaker_boost": true
                 }
             },
