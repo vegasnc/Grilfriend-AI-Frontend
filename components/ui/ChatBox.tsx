@@ -46,6 +46,8 @@ export default function ChatBox(props: PropsType) {
     const messageListRef = useRef<HTMLDivElement>(null);
     const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
+    let history_id = "";
+
     const backendAPI = axios.create({
         baseURL : "https://chatbot.sdmansiontest.com"
     });
@@ -91,6 +93,7 @@ export default function ChatBox(props: PropsType) {
         try {
             const response = await backendAPI.post( "/get_answer", {
                 question: question,
+                history_id: history_id
             });
             const data = await response.data;
 
@@ -98,6 +101,7 @@ export default function ChatBox(props: PropsType) {
                 setError(data.error);
                 setLoading(false);
             } else {
+                history_id = data.history_id;
                 fetchAndUpdateAudioData(data.answer).then((audioURL) => {
                     setMessageState((state) => ({
                         ...state,
