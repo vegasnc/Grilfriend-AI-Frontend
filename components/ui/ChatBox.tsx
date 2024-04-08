@@ -155,8 +155,8 @@ export default function ChatBox(props: PropsType) {
             data: {
                 text: textToConvert,
                 voice_settings: {
-                    "similarity_boost": 0.9,
                     "stability": 0.35,
+                    "similarity_boost": 0.9,
                     "style": 0.25,
                     "use_speaker_boost": true
                 }
@@ -196,6 +196,8 @@ export default function ChatBox(props: PropsType) {
         setQuery(transcript);
         resetTranscript();
         SpeechRecognition.stopListening();
+
+        handleSubmit(null);
     }
 
     //prevent empty submissions
