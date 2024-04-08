@@ -62,15 +62,20 @@ export default function ChatBox(props: PropsType) {
         messageListRef.current?.scrollTo({ top: messageListRef.current.scrollHeight, behavior: 'smooth' });
     }, [messageState.messages]);
 
-    async function getAnswer() {
+    async function getAnswer(temp_query: string) {
         setError(null);
 
-        if (!query) {
+        if (!query && !temp_query) {
             alert('Please input a question');
             return;
         }
 
-        const question = query.trim();
+        let question = "";
+
+        if( query )
+            question = query.trim();
+        else if( temp_query )
+            question = temp_query.trim();
 
         setMessageState((state) => ({
             ...state,
@@ -132,7 +137,7 @@ export default function ChatBox(props: PropsType) {
     async function handleSubmit(e: any) {
         e.preventDefault();
 
-        getAnswer();
+        getAnswer("");
     }
 
     // Function to convert text to audio using ElevenLabs API
@@ -201,7 +206,7 @@ export default function ChatBox(props: PropsType) {
         resetTranscript();
         SpeechRecognition.stopListening();
 
-        getAnswer();
+        getAnswer( transcript );
     }
 
     //prevent empty submissions
