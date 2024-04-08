@@ -62,10 +62,7 @@ export default function ChatBox(props: PropsType) {
         messageListRef.current?.scrollTo({ top: messageListRef.current.scrollHeight, behavior: 'smooth' });
     }, [messageState.messages]);
 
-    //handle form submission
-    async function handleSubmit(e: any) {
-        e.preventDefault();
-
+    async function getAnswer() {
         setError(null);
 
         if (!query) {
@@ -129,6 +126,13 @@ export default function ChatBox(props: PropsType) {
             setError('An error occurred while fetching the data. Please try again.');
             console.log('error', error);
         }
+    }
+
+    //handle form submission
+    async function handleSubmit(e: any) {
+        e.preventDefault();
+
+        getAnswer();
     }
 
     // Function to convert text to audio using ElevenLabs API
@@ -197,7 +201,7 @@ export default function ChatBox(props: PropsType) {
         resetTranscript();
         SpeechRecognition.stopListening();
 
-        handleSubmit(null);
+        getAnswer();
     }
 
     //prevent empty submissions
