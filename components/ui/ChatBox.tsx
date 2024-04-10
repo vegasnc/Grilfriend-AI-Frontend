@@ -150,8 +150,8 @@ export default function ChatBox(props: PropsType) {
     
         // ID of voice to be used for speech
         // const voiceId = '21m00Tcm4TlvDq8ikWAM'; // Rachel
-        // const voiceId = 'zrHiDhphv9ZnVXBqCLjz'; // Mimi
-        const voiceId = 'piTKgcLEGmPE4e6mEKli'; // Nicole
+        const voiceId = 'zrHiDhphv9ZnVXBqCLjz'; // Mimi
+        // const voiceId = 'piTKgcLEGmPE4e6mEKli'; // Nicole
     
         // API request options
         const apiRequestOptions : AxiosRequestConfig = {
@@ -169,7 +169,7 @@ export default function ChatBox(props: PropsType) {
                     "stability": 0.5,
                     "similarity_boost": 0.75,
                     "style": 0,
-                    "use_speaker_boost": true
+                    "use_speaker_boost": false
                 }
             },
             responseType: 'arraybuffer', // To receive binary data in response
